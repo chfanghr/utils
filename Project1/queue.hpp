@@ -14,7 +14,7 @@ namespace utils {
 #ifdef QUEUE_MAX_CAP
 				|| _cap>QUEUE_MAX_CAP
 #endif // QUEUE_MAX_CAP
-				)THROW_EXCEPTION(exception_bad_size());
+				)THROW_EXCEPTION(exception_bad_cap());
 			if (_cap == 0) {
 				is_dynamic = true;
 				cap = QUEUE_DEFAULT_CAP;
@@ -51,11 +51,11 @@ namespace utils {
 		void push(data_type data) {
 			if (len == cap) {
 #ifdef QUEUE_MAX_CAP
-				if (cap == QUEUE_MAX_CAP)THROW_EXCEPTION(exception_full());
+				if (cap == QUEUE_MAX_CAP)THROW_EXCEPTION(exception_overflow());
 #endif // QUEUE_MAX_CAP
-				if (!is_dynamic)THROW_EXCEPTION(exception_full());
+				if (!is_dynamic)THROW_EXCEPTION(exception_overflow());
 				else {
-					auto new_ptr = (data_type*)realloc((void*)data_arr, sizeof(data_type)*(cap + 1));
+					auto new_ptr = (data_type*)realloc((void*)data_arr, sizeof(data_type)*(2*cap));
 					if (new_ptr == nullptr)THROW_EXCEPTION(exception_memory());
 					data_arr = new_ptr;
 					cap++;
@@ -90,7 +90,7 @@ namespace utils {
 #ifdef QUEUE_MAX_CAP
 				|| _cap>QUEUE_MAX_CAP
 #endif // QUEUE_MAX_CAP
-				)THROW_EXCEPTION(exception_bad_size());
+				)THROW_EXCEPTION(exception_bad_cap());
 			if (_cap == 0) {
 				is_dynamic = true;
 				cap = QUEUE_DEFAULT_CAP;
@@ -104,7 +104,17 @@ namespace utils {
 			head = tail = 0;
 			len = 0;
 		}
-		class exception_full {
+		void clean() {
+			if (cap > len) {
+				realloc(data_arr, len+1);
+				cap = len+1;
+				return;
+			}
+			THROW_EXCEPTION(exception_unknow());
+		}
+
+	public:
+		class exception_overflow {
 		public:
 			const char* c_str() {
 				return "queue is full\n";
@@ -122,10 +132,15 @@ namespace utils {
 				return "can not allocate memory\n";
 			}
 		};
-		class exception_bad_size {
+		class exception_bad_cap {
 		public:
 			const char* c_str() {
-				return "given size is invaild\n";
+				return "given cap is invaild\n";
+			}
+		};
+		class exception_unknow {
+			const char* c_str() {
+				return "unknow error\n";
 			}
 		};
 	};

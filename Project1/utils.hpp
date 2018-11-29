@@ -15,12 +15,16 @@
 #ifdef ADRUINO
 #define QUEUE_DEFAULT_CAP 10
 #define QUEUE_MAX_CAP 50
+#define LIST_DEFAULT_CAP 10
 #else
-#define QUEUE_DEFAULT_CAP 100;
+#define QUEUE_DEFAULT_CAP 100
 //#define QUEUE_MAX_CAP 500
+#define LIST_DEFAULT_CAP 100
 #endif // ARDUINO
 
 // Headers
+
+#include <stddef.h>
 #ifdef ARDUINO
 #include "map_slow.h"
 #else
